@@ -1,0 +1,194 @@
+{% extends 'layout/main.html' %}
+
+{% block content %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+        <h4 class="py-3 mb-4">
+            <span class="text-muted fw-light">Data /</span>
+            Program
+        </h4>
+        <div class="col mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambah">
+                <i class="menu-icon bx bx-plus"></i>
+                Tambah
+            </button>
+        </div>
+    </div>
+    <!-- table -->
+    <div class="row">
+        <div class="col col-lg-12">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div>
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} d-flex align-items-center" role="alert">
+                    {% if category == 'success' %}
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
+                        <use xlink:href="#check-circle-fill" />
+                    </svg>
+                    {% elif category == 'danger' %}
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
+                        <use xlink:href="#exclamation-triangle-fill" />
+                    </svg>
+                    {% endif %}
+                    <div>{{ message }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+            <div class="card">
+                <div class="card-body">
+                    <table id="myTable" class="table" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Program</th>
+                                <th>Jalur Pembelajaran</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for program in programs %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ program.1 }}</td>
+                                <td>
+                                    {% if program.2 == 0 %}
+                                    Studi Independent
+                                    {% elif program.2 == 1 %}
+                                    Magang
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal"
+                                        data-bs-target="#modalEdit{{ loop.index }}">
+                                        <i class="bx bx-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                                        data-bs-target="#modalHapus{{ loop.index }}">
+                                        <i class="bx bx-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- modal edit -->
+                            <div class="modal fade" id="modalEdit{{ loop.index }}" tabindex="-1"
+                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel"> Edit Program </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <form action="/dashboard/program/{{ program.0 }}" method="POST">
+                                            <div class="modal-body">
+                                                <input type="hidden" name="_method" value="PUT">
+                                                <input type="hidden" name="id" value="{{ program.0 }}">
+                                                <div class="mb-3">
+                                                    <label for="name" class="form-label">Name Program</label>
+                                                    <input type="text" class="form-control" name="name" id="name"
+                                                        value="{{ program.1 }}" autofocus required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="path" class="form-label">Jalur Pembelajaran</label>
+                                                    <select class="form-select" name="path" id="path">
+                                                        <option value="0" {% if program.2==0 %}selected{% endif %}>
+                                                            Studi Independent
+                                                        </option>
+                                                        <option value="1" {% if program.2==1 %}selected{% endif %}>
+                                                            Magang
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Save Program</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end modal edit -->
+
+                            <!-- modal hapus -->
+                            <div class="modal fade" id="modalHapus{{ loop.index }}" tabindex="-1"
+                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Delete Program</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <form action="/dashboard/program/{{ program.0 }}" method="POST">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <div class="modal-body">
+                                                <p class="fs-6">Are you sure you want to delete the Program <b>{{
+                                                        program.1 }}</b>?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-outline-danger">Delete
+                                                    Program</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end modal hapus -->
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end table -->
+
+    <!-- modal tambah -->
+    <div class="modal fade" id="modalTambah" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Tambah Program</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/dashboard/program" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name Program</label>
+                            <input type="text" class="form-control" name="name" id="name" value="" autofocus required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="path" class="form-label">Jalur Pembelajaran</label>
+                            <select class="form-select" name="path" id="path">
+                                <option value="1">Magang</option>
+                                <option value="0">Studi Independent</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Program</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- end modal tambah -->
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+</script>
+
+{% endblock %}

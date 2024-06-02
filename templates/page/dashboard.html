@@ -1,0 +1,181 @@
+{% extends 'layout/main.html' %}
+
+{% block content %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+  <div class="row">
+    <h4 class="py-3 mb-4">
+      <span class="text-muted fw-light">Analytics /</span>
+      Dashboard
+    </h4>
+  </div>
+  <div class="row">
+    <div class="row mb-3">
+      <div class="col-lg-3">
+        <div class="card mb-3">
+          <div class="card-body p-5">
+            <div class="row d-flex align-items-center">
+              <div class="col">
+                <h4 class="fw-light">Program</h4>
+                <h4 class="fw-bold">{{ program_count }}</h4>
+              </div>
+              <div class="col">
+                <span class="float-end pe-3">
+                  <i class="bx bx-data fs-1 text-info"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="card mb-3">
+          <div class="card-body p-5">
+            <div class="row d-flex align-items-center">
+              <div class="col">
+                <h4 class="fw-light">Batch</h4>
+                <h4 class="fw-bold">{{ batch_count }}</h4>
+              </div>
+              <div class="col">
+                <span class="float-end pe-3">
+                  <i class="bx bx-collection fs-1 text-warning"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="card mb-3">
+          <div class="card-body p-5">
+            <div class="row d-flex align-items-center">
+              <div class="col">
+                <h4 class="fw-light">User</h4>
+                <h4 class="fw-bold">{{ user_count }}</h4>
+              </div>
+              <div class="col">
+                <span class="float-end pe-3">
+                  <i class="bx bx-user fs-1 text-danger"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="card mb-3">
+          <div class="card-body p-5">
+            <div class="row d-flex align-items-center">
+              <div class="col">
+                <h4 class="fw-light">Feedback</h4>
+                <h4 class="fw-bold">1232</h4>
+              </div>
+              <div class="col">
+                <span class="float-end pe-3">
+                  <i class="bx bx-spreadsheet fs-1 text-success"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Contoh elemen div untuk menampilkan grafik -->
+    <div class="row mb-2">
+      <div class="col-lg-8">
+        <div class="card">
+          <h4 class="m-3">Traffic Pengunjung</h4>
+          <div class="card-body">
+            <canvas id="myChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <h4 class="m-3">Highlight Feedback Terbaru</h4>
+          <div class="card-body">
+            <div class="accordion" id="accordionExample">
+              {% for feedback in feedbacks %}
+              <div class="feedback-item">
+                <h2 class="accordion-header" id="heading{{ loop.index }}">
+                  <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}"
+                    aria-expanded="{{ 'true' if loop.first else 'false' }}" aria-controls="collapse{{ loop.index }}">
+                    {{ feedback[1] }}
+                  </button>
+                </h2>
+                <div id="collapse{{ loop.index }}"
+                  class="accordion-collapse collapse {% if loop.first %}show{% endif %}"
+                  aria-labelledby="heading{{ loop.index }}" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    {{ feedback[2] }}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+  const chartLabels = JSON.parse('{{ chartLabels | safe }}');
+  const chartData = JSON.parse('{{ chartData | safe }}');
+  const ctx = document.getElementById('myChart');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'Traffic',
+        borderColor: "#8f44fd",
+        backgroundColor: "#8f44fd",
+        data: chartData,
+        fill: true,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          suggestedMin: 0,
+          suggestedMax: 10,
+          grid: {
+            display: true,
+            drawBorder: true,
+            drawOnChartArea: true,
+            drawTicks: true,
+            color: "rgba(255, 255, 255, 0.08)",
+            borderColor: "transparent",
+            borderDash: [5, 5],
+            borderDashOffset: 2,
+            tickColor: "transparent"
+          },
+          beginAtZero: true
+        }
+      },
+      tension: 0.3,
+      elements: {
+        point: {
+          radius: 8,
+          hoverRadius: 12,
+          backgroundColor: "#9BD0F5",
+          borderWidth: 0,
+        },
+      },
+    }
+  });
+</script>
+
+{% endblock %}

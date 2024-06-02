@@ -1,0 +1,142 @@
+{% extends 'layout/main.html' %}
+
+{% block content %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+  <div class="row">
+    <div class="row">
+      <h4 class="py-3 mb-4">
+        <span class="text-muted fw-light">Data /</span>
+        Data Feedback
+      </h4>
+      <div class="col-md-4">
+        <div class="input-group">
+          <input type="text" id="feedbackLink" class="form-control transparent-input"
+            value="http://localhost/form-feedback" readonly>
+          <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">
+            <i class="bx bx-copy"></i>
+          </button>
+
+        </div>
+      </div>
+      <div class="col-md-8 align-self-end mb-3">
+        <button id="exportExcel" class="btn btn-success float-end mt-3"
+          onclick="window.location.href='/dashboard/feedback/data/export_excel'">
+          <i class="fas fa-file-excel"></i> Cetak Excel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- table -->
+  <div class="row">
+    <div class="col col-lg-12">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div>
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} d-flex align-items-center" role="alert">
+          {% if category == 'success' %}
+          <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
+            <use xlink:href="#check-circle-fill" />
+          </svg>
+          {% elif category == 'danger' %}
+          <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
+            <use xlink:href="#exclamation-triangle-fill" />
+          </svg>
+          {% endif %}
+          <div>{{ message }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endwith %}
+      <div class="card">
+        <div class="card-body">
+          <table id="myTable" class="table nowrap" style="width:100%">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama Mentee</th>
+                <th>Jalur Pembelajaran</th>
+                <th>Program</th>
+                <th>Batch</th>
+                <th>Sesi</th>
+                <th>Pembelajaran dan Pengajaran</th>
+                <th>Fasilitas dan Lingkungan</th>
+                <th>Kepuasan terhadap Mentor</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for feedback in feedbacks %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ feedback.1 }}</td>
+                <td>{{ feedback.2 }}</td>
+                <td>{{ feedback.3 }}</td>
+                <td>Batch {{ feedback.4 }}</td>
+                <td>{{ feedback.5 }}</td>
+                <td>{{ feedback.6 }}</td>
+                <td>{{ feedback.7 }}</td>
+                <td>{{ feedback.8 }}</td>
+                <td>
+                  <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                    data-bs-target="#modalHapus{{ loop.index }}">
+                    <i class="bx bx-trash"></i>
+                  </button>
+                </td>
+              </tr>
+
+              <!-- modal hapus -->
+              <div class="modal fade" id="modalHapus{{ loop.index }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Delete Feedback</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="/dashboard/feedback/data/{{ feedback.0 }}" method="POST">
+                      <input type="hidden" name="_method" value="DELETE">
+                      <div class="modal-body">
+                        <p class="fs-6">Are you sure you want to delete the feedback <b>{{ feedback.1 }}</b>?</p>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-outline-danger">Delete
+                          Feedback</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <!-- end modal hapus -->
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end table -->
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+  function copyToClipboard() {
+    var copyText = document.getElementById("feedbackLink");
+    copyText.select();
+    document.execCommand("copy");
+    Swal.fire({
+      title: "Good job!",
+      text: "You Link Succes to Copy",
+      icon: "success"
+    });
+  }
+</script>
+
+{% endblock %}

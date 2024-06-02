@@ -1,0 +1,228 @@
+{% extends 'layout/main.html' %}
+
+{% block content %}
+
+<div class="container-xxl flex-grow-1 container-p-y">
+  <div class="row">
+    <div class="col">
+      <h4 class="py-3 mb-4">
+        <span class="text-muted fw-light">Data /</span>
+        Hasil Klasterisasi Feedback
+      </h4>
+    </div>
+  </div>
+  <div class="row">
+    <nav>
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <ul class="nav nav-pills">
+          <li class="nav-item">
+            <button class="nav-link active" id="nav-hasil-tab" data-bs-toggle="tab" data-bs-target="#nav-hasil"
+              type="button" role="tab" aria-controls="nav-hasil" aria-selected="true">Hasil</button>
+          </li>
+          {% for tab in tabs %}
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="nav-{{ tab.id }}-tab" data-bs-toggle="tab" data-bs-target="#nav-{{ tab.id }}"
+              type="button" role="tab" aria-controls="nav-{{ tab.id }}" aria-selected="true">{{ tab.label }}</button>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div>
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} d-flex align-items-center" role="alert">
+          {% if category == 'success' %}
+          <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
+            <use xlink:href="#check-circle-fill" />
+          </svg>
+          {% elif category == 'danger' %}
+          <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
+            <use xlink:href="#exclamation-triangle-fill" />
+          </svg>
+          {% endif %}
+          <div>{{ message }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endwith %}
+      <div class="tab-pane fade show active" id="nav-hasil" role="tabpanel" aria-labelledby="nav-hasil-tab">
+        <div class="row mb-2">
+          <div class="col-md-5 mt-4">
+            <form action="/dashboard/feedback/hasil" method="POST">
+              <div class="input-group">
+                <div class="me-1">
+                  <select class="form-select" aria-label="" name="choice">
+                    <option value="Pembelajaran dan Pengajaran">Pembelajaran dan Pengajaran</option>
+                    <option value="Fasilitas dan Lingkungan">Fasilitas dan Lingkungan</option>
+                    <option value="Kepuasan terhadap Mentor">Kepuasan terhadap Mentor</option>
+                  </select>
+                </div>
+                <div class="ms-1">
+                  <button class="btn btn-outline-secondary" type="submit">
+                    <i class="bx bx-search"></i> Search
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-7 align-self-end mb-5 d-flex justify-content-end">
+            <button id="exportExcel" class="btn btn-success mt-3 ms-2" onclick="window.location.href='/dashboard/feedback/hasil/export_excel'">
+              <i class="fas fa-file-excel"></i> Cetak Excel
+            </button>
+          </div>
+        </div>
+        <div class="row my-5">
+          <div class="col-lg-12 chart-container">
+            <canvas id="myChart1"></canvas>
+          </div>
+        </div>
+      </div>
+      {% for tab in tabs %}
+      <div class="tab-pane fade" id="nav-{{ tab.id }}" role="tabpanel" aria-labelledby="nav-{{ tab.id }}-tab">
+        <div class="row">
+          {% for chart in tab.charts %}
+          <div class="col-lg-6">
+            <div class="card">
+              <h4 class="m-3">{{ tab.name[loop.index-1] }}</h4>
+              <div class="card-body">
+                <canvas id="{{ chart }}"></canvas>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="row mt-3">
+          <div class="col col-lg-12">
+            <div class="card">
+              <div class="card-body">
+                <table id="{{ tab.table_id }}" class="table nowrap" style="width:100%">
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>Nama Mentee</th>
+                      <th>Jalur Pembelajaran</th>
+                      <th>Program</th>
+                      <th>Batch</th>
+                      <th>Sesi</th>
+                      <th>Feedback</th>
+                      <th>Sentiment</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for kluster in tab.klusters %}
+                    <tr>
+                      <td>{{ loop.index }}</td>
+                      <td>{{ kluster.2 }}</td>
+                      <td>{{ kluster.4 }}</td>
+                      <td>{{ kluster.6 }}</td>
+                      <td>Batch {{ kluster.7 }}</td>
+                      <td>{{ kluster.5 }}</td>
+                      <td>{{ kluster.1 }}</td>
+                      <td>{{ kluster.0 }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+  // Ambil elemen kanvas
+  const ctx1 = document.getElementById('myChart1').getContext('2d');
+  const chartLabels = JSON.parse('{{ grafis.0 | tojson | safe }}');
+  const chartData = JSON.parse('{{ grafis.1 | tojson | safe }}');
+
+  // Buat chart pie
+  new Chart(ctx1, {
+    type: 'pie',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'Traffic',
+        data: chartData,
+        backgroundColor: [
+          'rgba(54, 162, 235, 0.7)',
+          'rgba(75, 192, 192, 0.7)',
+          'rgba(153, 102, 255, 0.7)'
+        ],
+        borderColor: [
+          'rgba(54, 162, 235, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      },
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const chartConfigs = [
+      { id: 'myChart2', type: 'doughnut', labels: JSON.parse('{{ labels_doughnut_positif | tojson | safe }}'), data: JSON.parse('{{ values_doughnut_positif | tojson | safe }}'), backgroundColor: ['rgba(54, 162, 235, 0.7)', 'rgba(75, 192, 192, 0.7)', 'rgba(153, 102, 255, 0.7)'], borderColor: ['rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'] },
+      { id: 'myChart3', type: 'bar', labels: JSON.parse('{{ labels_bar_positif | tojson | safe }}'), data: JSON.parse('{{ values_bar_positif | tojson | safe }}'), backgroundColor: ['rgba(255, 99, 132, 0.7)', 'rgba(255, 159, 64, 0.7)', 'rgba(255, 205, 86, 0.7)'], borderColor: ['rgba(255, 99, 132, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 205, 86, 1)'] },
+      { id: 'myChart4', type: 'doughnut', labels: JSON.parse('{{ labels_doughnut_negatif | tojson | safe }}'), data: JSON.parse('{{ values_doughnut_negatif | tojson | safe }}'), backgroundColor: ['rgba(75, 192, 192, 0.7)', 'rgba(153, 102, 255, 0.7)', 'rgba(255, 159, 64, 0.7)'], borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)'] },
+      { id: 'myChart5', type: 'bar', labels: JSON.parse('{{ labels_bar_negatif | tojson | safe }}'), data: JSON.parse('{{ values_bar_negatif | tojson | safe }}'), backgroundColor: ['rgba(54, 162, 235, 0.7)', 'rgba(75, 192, 192, 0.7)', 'rgba(255, 205, 86, 0.7)'], borderColor: ['rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)', 'rgba(255, 205, 86, 1)'] },
+      { id: 'myChart6', type: 'doughnut', labels: JSON.parse('{{ labels_doughnut_netral | tojson | safe }}'), data: JSON.parse('{{ values_doughnut_netral | tojson | safe }}'), backgroundColor: ['rgba(255, 99, 132, 0.7)', 'rgba(255, 159, 64, 0.7)', 'rgba(255, 205, 86, 0.7)'], borderColor: ['rgba(255, 99, 132, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 205, 86, 1)'] },
+      { id: 'myChart7', type: 'bar', labels: JSON.parse('{{ labels_bar_netral | tojson | safe }}'), data: JSON.parse('{{ values_bar_netral | tojson | safe }}'), backgroundColor: ['rgba(54, 162, 235, 0.7)', 'rgba(75, 192, 192, 0.7)', 'rgba(255, 205, 86, 0.7)'], borderColor: ['rgba(54, 162, 235, 1)', 'rgba(75, 192, 192, 1)', 'rgba(255, 205, 86, 1)'] },
+    ];
+
+    chartConfigs.forEach(config => {
+      const ctx = document.getElementById(config.id).getContext('2d');
+      new Chart(ctx, {
+        type: config.type,
+        data: {
+          labels: config.labels,
+          datasets: [{
+            data: config.data,
+            backgroundColor: config.backgroundColor,
+            borderColor: config.borderColor,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            }
+          },
+          scales: config.type === 'bar' ? {
+            x: {
+              beginAtZero: true
+            },
+            y: {
+              beginAtZero: true
+            }
+          } : {}
+        }
+      });
+    });
+  });
+</script>
+
+{% endblock %}

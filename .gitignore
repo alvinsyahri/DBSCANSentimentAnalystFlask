@@ -1,0 +1,10 @@
+# Direktori Virtual Environment
+.venv
+
+# File-bytecode Python
+__pycache__
+
+# Direktori Database, Function, dan Route
+database/__pycache__
+function/__pycache__
+route/__pycache__

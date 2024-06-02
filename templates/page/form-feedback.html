@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="shortcut icon" href="/static/assets/images/favicon.svg" type="image/x-icon" />
+    <title>Form Feedback | Infinite Learning</title>
+
+    <!-- Bootstrap CDN-->
+    <link rel="stylesheet" href="/static/form/css/bootstrap.min.css" />
+    <!-- Customize CSS -->
+    <link rel="stylesheet" href="/static/form/css/styles.css">
+    <!-- select 2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+</head>
+
+<body>
+    <!-- CONTAINER -->
+    <div class="main-wrapper">
+
+        <!-- FORM SECTION -->
+
+        <!-- HEADER BUT MOSTLY LIKE FIRST SECTION -->
+        <div class="header-section">
+            <div class="header-first"></div>
+            <h1>Rancang Bangun Aplikasi Evaluasi Kegiatan Magang Pada Lembaga Infinite Learning Menggunakan Metode
+                DBSCAN Berbasis Web</h1>
+            <p style="text-align: justify;">
+                Assalamu'alaikum wr.wb. <br><br>
+
+                Selamat Pagi/Siang/Sore/Malam, perkenalkan saya Alvin Syahri, mahasiswa Jurusan Teknologi Informasi
+                dan Komputer, Prodi Teknik Informatika, Politeknik Negeri Lhokseumawe.
+                Saya disini berharap anda untuk berpartisipasi dalam penelitian saya yang bertujuan untuk
+                mendapatkan respon umpan balik yang cepat. Data yang Anda berikan akan digunakan sebagai bagian dari
+                penelitian skripsi saya di Jurusan Teknologi Informasi dan Komputer. <br><br>
+                Saya mohon kepada anda untuk dapat meluangkan waktu beberapa menit untuk mengisi kuesioner ini
+                dengan sebaik-baiknya. Jawaban Anda akan sangat berharga bagi penelitian saya. Pastikan untuk
+                menjawab semua pertanyaan dengan sejujur mungkin. <br><br>
+                Saya menghargai partisipasi Anda dalam penelitian ini. Semua informasi yang Anda berikan akan
+                dijamin kerahasiaannya dan hanya akan digunakan untuk tujuan penelitian. <br><br>
+                Terima kasih atas waktu dan kerjasamanya. <br><br>
+                Hormat saya, <br><br><br>
+                Alvin Syahri
+            </p>
+        </div>
+
+        <!-- MAIN BODY -->
+        <form action="/form-feedback" method="POST">
+            <div class="main-section">
+                <!-- SECOND SECTION -->
+                <div class="section-two">
+                    <p>Nama ? <span>*</span></p> <br />
+                    <input type="text" aria-label="name" placeholder="Your answer" class="form-control" id="name" name="name"
+                        style="max-width: 60% ;" required>
+                </div>
+
+                <!-- THIRD SECTION -->
+                <div class="section-three">
+                    <p>Jalur Pembelajaran ?<span>*</span></p> <br />
+                    <div class="input-group mb-3">
+                        <select class="form-select js-example-basic-single" id="inputGroupSelect01"
+                            name="jalur_pembelajaran">
+                            <option value="Magang">Magang</option>
+                            <option value="Studi Independent">Studi Independent</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <!-- FOURTH SECTION -->
+                <div class="section-four">
+                    <p>Program ? <span>*</span></p> <br />
+                    <div class="input-group mb-3">
+                        <select class="form-control js-example-basic-single" id="inputGroupSelect02" name="program">
+                        </select>
+                    </div>
+                </div>
+
+                <!-- FIFTH SECTION -->
+                <div class="section-five">
+                    <p>Batch ? <span>*</span></p> <br />
+                    <div class="input-group mb-3">
+                        <select class="form-control js-example-basic-single" id="inputGroupSelect03" name="batch">
+                            {% for batch in batchs %}
+                            <option value="{{ batch.0 }}">Batch {{ batch.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <!-- FIRST SECTION -->
+                <div class="section-one">
+                    <p>Sesi ?<span>*</span></p> <br />
+                    <div class="input-group mb-3">
+                        <select class="form-select js-example-basic-single" id="inputGroupSelect04" name="sesi">
+                            <option value="Pagi">Pagi</option>
+                            <option value="Siang">Siang</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SIXTH SECTION -->
+                <div class="section-six">
+                    <p>Pembelajaran dan Pengajaran ?<span>*</span></p> <br />
+                    <p class="small-font">Umpan balik mencakup topik atau materi yang telah diajarkan, metode
+                        pengajaran, interaksi dan diskusi selama kelas dst.</p> <br />
+                    <div class="form-floating">
+                        <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea1"
+                            name="pembelajaran_pengajaran" style="height: 100px" required></textarea>
+                    </div>
+                </div>
+
+                <!-- SEVENTH SECTION -->
+                <div class="section-seven">
+                    <p>Fasilitas dan Lingkungan ?<span>*</span></p> <br />
+                    <p class="small-font">Umpan balik mencakup kondisi ruang yang disediakan baik offline maupun online,
+                        akses jaringan dsb. </p> <br />
+                    <div class="form-floating">
+                        <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2"
+                            name="fasilitas_lingkungan" style="height: 100px" required></textarea>
+                    </div>
+                </div>
+
+                <!-- EIGHTH SECTION -->
+                <div class="section-eight">
+                    <p>Kepuasan terhadap Mentor ?<span>*</span></p> <br />
+                    <p class="small-font">Umpan balik mencakup keterampilan dan pengetahuan mentor, responsif dan mudah
+                        dihubungi saat kalian membutuhkan bantuan pendekatan mentor dalam membantu kalian mengatasi
+                        kesulitan belajar dst.</p> <br />
+                    <div class="form-floating">
+                        <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea3"
+                            name="kepuasan_mentor" style="height: 100px" required></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOOTER SECTION INSIDE THE FORM SECTION -->
+            <div class="footer-section">
+                <div class="content row d-flex mb-3">
+                    <div class="left-item col-sm-6 order-sm-2">
+                        <div class="line">
+                        </div>
+                        <p class="text m-2">Page 1 of 1</p>
+                    </div>
+                    <div class="col-sm-6 order-sm-1">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+                <p style="font-size: 12px; font-weight: 400;">Never submit passwords through Google Forms.</p>
+            </div>
+        </form>
+
+        <!-- MAIN FOOTER -->
+        <div class="footer">
+            <p class="text-center" style="font-size: 12px; font-weight: 400;">This content is neither created nor
+                endorsed by Google.
+                <a href="#"><span>Report Abuse </span> - </a>
+                <a href="#"><span>Terms of Service</span> - </a>
+                <a href="#"> <span>Privacy Policy</span> </a>
+            </p>
+        </div>
+        <div class="mb-4">
+            <h1 class="text-center foot1"> <span style="color: black; opacity: 0.26; font-weight: 500;">Google</span>
+                <span style="color: black; opacity: 0.2;">Forms</span>
+            </h1>
+        </div>
+    </div>
+
+    <!-- ========= All Javascript files linkup ======== -->
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+    <script src="/static/form/js/bootstrap.bundle.min.js"></script>
+
+    <!-- CUSTOMIZE JAVASCRIPT -->
+    <script src="/static/form/js/script.js"></script>
+
+    <!-- select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.js-example-basic-single').select2();
+        });
+
+        $(document).ready(function () {
+            $('#inputGroupSelect01').change(function () {
+                var selectedJalur = $(this).val();
+                $.ajax({
+                    url: '/get_programs',
+                    method: 'POST',
+                    data: { jalur: selectedJalur },
+                    success: function (response) {
+                        $('#inputGroupSelect02').empty();
+                        response.forEach(function (program) {
+                            $('#inputGroupSelect02').append('<option value="' + program[0] + '">' + program[1] + '</option>'); // Sesuaikan dengan struktur data yang diharapkan
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            });
+        
+            // Panggil perubahan pertama kali saat halaman dimuat
+            $('#inputGroupSelect01').change();
+        });
+    </script>
+</body>
+
+</html>
