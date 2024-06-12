@@ -12,9 +12,9 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60*24)
 global COOKIE_TIME_OUT
 
 # MySQL Configuration
-app.config['MYSQL_HOST'] = '8.222.232.107'
+app.config['MYSQL_HOST'] = 'rm-gs5zr566io401q5340o.mysql.singapore.rds.aliyuncs.com'
 app.config['MYSQL_USER'] = 'alvin21'
-app.config['MYSQL_PASSWORD'] = 'produk21kandang'
+app.config['MYSQL_PASSWORD'] = 'Putri12adiba'
 app.config['MYSQL_DB'] = 'tugas_akhir'
 
 mysql = MySQL(app)

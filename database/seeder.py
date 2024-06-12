@@ -9,9 +9,9 @@ def connect_to_mysql():
     try:
         # Ubah parameter sesuai dengan detail koneksi MySQL Anda
         connection = mysql.connector.connect(
-            host="8.222.232.107",
+            host="rm-gs5zr566io401q5340o.mysql.singapore.rds.aliyuncs.com",
             user="alvin21",
-            password="produk21kandang",
+            password="Putri12adiba",
             database="tugas_akhir"
         )
         return connection
@@ -56,7 +56,7 @@ def seed_data():
                 ('Research & Development', 1),
                 ('Project Manager', 1),
             ]
-            batches = ['1', '2', '3', '4', '5', '6', '7']
+            batches = ['1', '2', '3', '4', '5', '6']
 
             users = [
                 ('Alvin Syahri', 'alvin21', 'alvin21', 0),
