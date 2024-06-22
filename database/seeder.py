@@ -9,9 +9,9 @@ def connect_to_mysql():
     try:
         # Ubah parameter sesuai dengan detail koneksi MySQL Anda
         connection = mysql.connector.connect(
-            host="rm-gs5zr566io401q5340o.mysql.singapore.rds.aliyuncs.com",
-            user="alvin21",
-            password="Putri12adiba",
+            host="localhost",
+            user="root",
+            password="",
             database="tugas_akhir"
         )
         return connection

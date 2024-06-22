@@ -1,6 +1,4 @@
-{% extends 'layout/main.html' %}
-
-{% block content %}
+{% extends 'layout/main.html' %} {% block content %}
 
 <div class="container-xxl flex-grow-1 container-p-y">
   <div class="row">
@@ -11,18 +9,37 @@
       </h4>
       <div class="col-md-4">
         <div class="input-group">
-          <input type="text" id="feedbackLink" class="form-control transparent-input"
-            value="http://localhost/form-feedback" readonly>
-          <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">
+          <input
+            type="text"
+            id="feedbackLink"
+            class="form-control transparent-input"
+            value="http://localhost/form-feedback"
+            readonly
+          />
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            onclick="copyToClipboard()"
+          >
             <i class="bx bx-copy"></i>
           </button>
-
         </div>
       </div>
       <div class="col-md-8 align-self-end mb-3">
-        <button id="exportExcel" class="btn btn-success float-end mt-3"
-          onclick="window.location.href='/dashboard/feedback/data/export_excel'">
-          <i class="fas fa-file-excel"></i> Cetak Excel
+        <button
+          id="exportExcel"
+          class="btn btn-success float-end ms-1"
+          onclick="window.location.href='/dashboard/feedback/data/export_excel'"
+        >
+          <i class="fas fa-file-excel"></i> Export Excel
+        </button>
+        <button
+          id="tambahButton"
+          type="button"
+          class="btn btn-primary float-end me-1"
+          data-bs-toggle="modal"
+          data-bs-target="#tambahModal"
+        ><i class="bi bi-plus"></i>Import Excel
         </button>
       </div>
     </div>
@@ -31,17 +48,32 @@
   <!-- table -->
   <div class="row">
     <div class="col col-lg-12">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
       <div>
         {% for category, message in messages %}
-        <div class="alert alert-{{ category }} d-flex align-items-center" role="alert">
+        <div
+          class="alert alert-{{ category }} d-flex align-items-center"
+          role="alert"
+        >
           {% if category == 'success' %}
-          <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
+          <svg
+            class="bi flex-shrink-0 me-2"
+            width="24"
+            height="24"
+            role="img"
+            aria-label="Success:"
+          >
             <use xlink:href="#check-circle-fill" />
           </svg>
           {% elif category == 'danger' %}
-          <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
+          <svg
+            class="bi flex-shrink-0 me-2"
+            width="24"
+            height="24"
+            role="img"
+            aria-label="Danger:"
+          >
             <use xlink:href="#exclamation-triangle-fill" />
           </svg>
           {% endif %}
@@ -49,11 +81,10 @@
         </div>
         {% endfor %}
       </div>
-      {% endif %}
-      {% endwith %}
+      {% endif %} {% endwith %}
       <div class="card">
         <div class="card-body">
-          <table id="myTable" class="table nowrap" style="width:100%">
+          <table id="myTable" class="table nowrap" style="width: 100%">
             <thead>
               <tr>
                 <th>No</th>
@@ -81,31 +112,59 @@
                 <td>{{ feedback.7 }}</td>
                 <td>{{ feedback.8 }}</td>
                 <td>
-                  <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                    data-bs-target="#modalHapus{{ loop.index }}">
+                  <button
+                    class="btn btn-sm btn-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalHapus{{ loop.index }}"
+                  >
                     <i class="bx bx-trash"></i>
                   </button>
                 </td>
               </tr>
 
               <!-- modal hapus -->
-              <div class="modal fade" id="modalHapus{{ loop.index }}" tabindex="-1" aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
+              <div
+                class="modal fade"
+                id="modalHapus{{ loop.index }}"
+                tabindex="-1"
+                aria-labelledby="exampleModalLabel"
+                aria-hidden="true"
+              >
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title" id="exampleModalLabel">Delete Feedback</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      <h5 class="modal-title" id="exampleModalLabel">
+                        Delete Feedback
+                      </h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
                     </div>
-                    <form action="/dashboard/feedback/data/{{ feedback.0 }}" method="POST">
-                      <input type="hidden" name="_method" value="DELETE">
+                    <form
+                      action="/dashboard/feedback/data/{{ feedback.0 }}"
+                      method="POST"
+                    >
+                      <input type="hidden" name="_method" value="DELETE" />
                       <div class="modal-body">
-                        <p class="fs-6">Are you sure you want to delete the feedback <b>{{ feedback.1 }}</b>?</p>
+                        <p class="fs-6">
+                          Are you sure you want to delete the feedback
+                          <b>{{ feedback.1 }}</b>?
+                        </p>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-outline-danger">Delete
-                          Feedback</button>
+                        <button
+                          type="button"
+                          class="btn btn-secondary"
+                          data-bs-dismiss="modal"
+                        >
+                          Cancel
+                        </button>
+                        <button type="submit" class="btn btn-outline-danger">
+                          Delete Feedback
+                        </button>
                       </div>
                     </form>
                   </div>
@@ -122,9 +181,45 @@
   <!-- end table -->
 </div>
 
-{% endblock %}
+<!-- Modal form tambah -->
+<div class="modal fade" id="tambahModal" tabindex="-1" aria-labelledby="tambahModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-primary font-weight-bold" id="tambahModalLabel">Tambah Data Training</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Isi formulir tambah di sini -->
+        <form method="POST" action="/dashboard/feedback/data" enctype="multipart/form-data">
+          <div class="row mb-3">
+            <div class="col-sm-12">
+              <div class="input-group">
+                <input type="file" name="file" class="form-control" required>
+              </div>
+            </div>
+            <div class="col-sm-12 text-secondary">
+              <i class="bi bi-info-circle-fill text-info me-1"></i> File harus memiliki ekstensi .xlsx
+            </div>
+          </div>
+          <div class="row mb-2 justify-content-end">
+            <div class="col-sm-auto me-1">
+              <button type="reset" class="btn btn-secondary">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-cloud-upload me-1"></i> Upload
+              </button>
+            </div>
+          </div>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
 
-{% block script %}
+{% endblock %} {% block script %}
 
 <script>
   function copyToClipboard() {
@@ -134,7 +229,7 @@
     Swal.fire({
       title: "Good job!",
       text: "You Link Succes to Copy",
-      icon: "success"
+      icon: "success",
     });
   }
 </script>
