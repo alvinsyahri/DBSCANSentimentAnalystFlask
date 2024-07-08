@@ -18,21 +18,12 @@ def getFeedbackHasil():
         klustersPositif = feedbackHasils.fetch_klusters('Positif', session['user_id'])
         klustersNegatif = feedbackHasils.fetch_klusters('Negatif', session['user_id'])
         klustersNetral = feedbackHasils.fetch_klusters('Netral', session['user_id'])
-        klustersPositif = feedbackHasils.fetch_klusters('Positif', session['user_id'])
-        klustersNegatif = feedbackHasils.fetch_klusters('Negatif', session['user_id'])
-        klustersNetral = feedbackHasils.fetch_klusters('Netral', session['user_id'])
         
 
         labels_doughnut_positif, values_doughnut_positif = feedbackHasils.get_top_programs(klustersPositif)
         labels_doughnut_negatif, values_doughnut_negatif = feedbackHasils.get_top_programs(klustersNegatif)
         labels_doughnut_netral, values_doughnut_netral = feedbackHasils.get_top_programs(klustersNetral)
-        labels_doughnut_positif, values_doughnut_positif = feedbackHasils.get_top_programs(klustersPositif)
-        labels_doughnut_negatif, values_doughnut_negatif = feedbackHasils.get_top_programs(klustersNegatif)
-        labels_doughnut_netral, values_doughnut_netral = feedbackHasils.get_top_programs(klustersNetral)
 
-        labels_bar_positif, values_bar_positif = feedbackHasils.get_top_batch(klustersPositif)
-        labels_bar_negatif, values_bar_negatif = feedbackHasils.get_top_batch(klustersNegatif)
-        labels_bar_netral, values_bar_netral = feedbackHasils.get_top_batch(klustersNetral)
         labels_bar_positif, values_bar_positif = feedbackHasils.get_top_batch(klustersPositif)
         labels_bar_negatif, values_bar_negatif = feedbackHasils.get_top_batch(klustersNegatif)
         labels_bar_netral, values_bar_netral = feedbackHasils.get_top_batch(klustersNetral)
@@ -112,10 +103,8 @@ def postFeedbackHasil():
 
         data = pd.DataFrame(dictionary)
         data['translated'] = data['text'].apply(feedbackHasils.translate_text)
-        data['translated'] = data['text'].apply(feedbackHasils.translate_text)
 
         data.replace('', pd.NA, inplace=True)
-        data.replace('-', pd.NA, inplace=True)
 
         data = data.dropna(how='any')
 
@@ -125,16 +114,8 @@ def postFeedbackHasil():
         data['tokenize'] = data['cleaning data'].apply(feedbackHasils.tokenize_text)
         data['stopwords'] = data['tokenize'].apply(feedbackHasils.remove_stopwords)
         data['stemming'] = data['stopwords'].apply(feedbackHasils.stem_tokens)
-        data['case folding'] = data['translated'].apply(feedbackHasils.case_folding)
-        data['cleaning data'] = data['case folding'].apply(feedbackHasils.clean_text)
-        data['tokenize'] = data['cleaning data'].apply(feedbackHasils.tokenize_text)
-        data['stopwords'] = data['tokenize'].apply(feedbackHasils.remove_stopwords)
-        data['stemming'] = data['stopwords'].apply(feedbackHasils.stem_tokens)
 
         # scoring sentiment
-        data['polarity'] = data['stemming'].apply(feedbackHasils.getPolarity)
-        data['subjectivity'] = data['stemming'].apply(feedbackHasils.getSubjectivity)
-        data['afinn'] = data['stemming'].apply(feedbackHasils.getAfinnScore)
         data['polarity'] = data['stemming'].apply(feedbackHasils.getPolarity)
         data['subjectivity'] = data['stemming'].apply(feedbackHasils.getSubjectivity)
         data['afinn'] = data['stemming'].apply(feedbackHasils.getAfinnScore)
@@ -146,8 +127,6 @@ def postFeedbackHasil():
 
         best_eps, best_min_samples, best_score = feedbackHasils.chekEpsMinRadius(data_scaled)
 
-        best_eps, best_min_samples, best_score = feedbackHasils.chekEpsMinRadius(data_scaled)
-
         # Menentukan parameter DBSCAN
         eps = best_eps  
         min_samples = best_min_samples
@@ -156,7 +135,6 @@ def postFeedbackHasil():
 
         # Membuat model DBSCAN
         dbscan = DBSCAN(eps=eps, min_samples=min_samples, metric='euclidean')
-        dbscan = DBSCAN(eps=eps, min_samples=min_samples, metric='euclidean')
 
         # Melakukan clustering
         clusters = dbscan.fit_predict(data_scaled)
@@ -164,7 +142,6 @@ def postFeedbackHasil():
         # Menambahkan kolom cluster ke DataFrame
         data['cluster'] = clusters
         
-        data['sentiment'] = data['cluster'].apply(feedbackHasils.get_sentiment_label)
         data['sentiment'] = data['cluster'].apply(feedbackHasils.get_sentiment_label)
 
         created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -190,7 +167,6 @@ def postFeedbackHasil():
 @feedback_hasil_routes.route('/dashboard/feedback/hasil/export_excel')
 def export_excel():
     try:
-        feedback_data = feedbackHasils.get_feedback_kluster_from_database(session['user_id'])
         feedback_data = feedbackHasils.get_feedback_kluster_from_database(session['user_id'])
         
         df = pd.DataFrame(feedback_data, columns=['kluster', 'feedback', 'feedback_name', 'jalur_pembelajaran', 'sesi', 'program_name', 'batch_name'])
