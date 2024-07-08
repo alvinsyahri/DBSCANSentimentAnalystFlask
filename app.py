@@ -12,9 +12,9 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60*24)
 global COOKIE_TIME_OUT
 
 # MySQL Configuration
-app.config['MYSQL_HOST'] = 'rm-gs5zr566io401q5340o.mysql.singapore.rds.aliyuncs.com'
-app.config['MYSQL_USER'] = 'alvin21'
-app.config['MYSQL_PASSWORD'] = 'Putri12adiba'
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'tugas_akhir'
 
 mysql = MySQL(app)
@@ -31,4 +31,5 @@ app.register_blueprint(user_routes.user_routes)
 app.register_blueprint(auth_routes.auth_routes)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    # app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True, port=5000)

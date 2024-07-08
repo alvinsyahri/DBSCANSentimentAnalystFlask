@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify
 from datetime import datetime
-from function import utils
+from function import mains
 from flask_mysqldb import MySQL
 
 main_routes = Blueprint('main_routes', __name__)
@@ -12,7 +12,7 @@ def getMain():
 
 @main_routes.route('/form-feedback', methods = ['GET'])
 def getForm():
-    utils.checkTraffic()
+    mains.checkTraffic()
     cur = mysql.connection.cursor()
     cur.execute("""
             SELECT id, name FROM batch

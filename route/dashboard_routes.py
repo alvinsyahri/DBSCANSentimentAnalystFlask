@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, session
 from datetime import datetime, timedelta
-from function import utils
+from function import mains, dashboards
 from flask_mysqldb import MySQL
 import json
 
@@ -10,9 +10,9 @@ mysql = MySQL()
 @dashboard_routes.route('/dashboard', methods = ['GET'])
 def getDashboard():
     if 'username' in session:
-        utils.checkTraffic()
+        mains.checkTraffic()
 
-        data = utils.grafis()
+        data = dashboards.grafis()
 
         # Mendapatkan tanggal hari ini dan kemarin
         today = datetime.now().date()
@@ -38,14 +38,14 @@ def getDashboard():
 
         cur = mysql.connection.cursor()
         # Mengambil total record dari setiap tabel
-        program_count = utils.get_total_records(cur, 'program')
-        batch_count = utils.get_total_records(cur, 'batch')
-        user_count = utils.get_total_records(cur, 'user')
+        program_count = dashboards.get_total_records(cur, 'program')
+        batch_count = dashboards.get_total_records(cur, 'batch')
+        user_count = dashboards.get_total_records(cur, 'user')
 
         chartLabels_json = json.dumps(chartLabels)
         chartData_json = json.dumps(chartData)
 
-        feedbacks = utils.newFeedback()
+        feedbacks = dashboards.newFeedback()
 
         mysql.connection.commit()
         cur.close()

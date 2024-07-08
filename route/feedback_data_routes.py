@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, send_file
-from function import utils
+from function import feedbackDatas
 from datetime import datetime
 from flask_mysqldb import MySQL
 import pandas as pd
@@ -41,7 +41,7 @@ def getFeedbackData():
 @feedback_data_routes.route('/dashboard/feedback/data/export_excel')
 def export_excel():
     try:
-        feedback_data = utils.get_feedback_data_from_database()
+        feedback_data = feedbackDatas.get_feedback_data_from_database()
 
         df = pd.DataFrame(feedback_data, columns=['ID', 'Name', 'Jalur Pembelajaran', 'Program', 'Batch', 'Sesi', 'Pembelajaran dan Pembahasan', 'Fasilitas dan Lingkungan', 'Kepuasan terhadap Mentor'])
         df.rename(columns={'ID': 'No Urut'}, inplace=True)
@@ -113,27 +113,37 @@ def putAndDeleteBatch(feedback_id):
     
 @feedback_data_routes.route('/dashboard/feedback/data', methods=['POST'])
 def postDataFeedbackData():
-    data = request.files['file']
-    data = pd.read_excel(data)
-    created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    updated_at = created_at
-    cur = mysql.connection.cursor()
-    # Iterasi melalui setiap baris DataFrame dan menyimpan data ke database
-    for index, row in data.iterrows():
-        # Menjalankan kueri untuk menyimpan data
-        cur.execute("INSERT INTO feedback (name, jalur_pembelajaran, program_id, batch_id, sesi, pembelajaran_pengajaran, fasilitas_lingkungan, kepuasan_mentor, createdAt, updatedAt) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
-                    (
-                        row['name'], 
-                        row['jalur_pembelajaran'], 
-                        row['program'], 
-                        row['batch'], 
-                        row['sesi'],
-                        row['pembelajaran_pengajaran'],
-                        row['fasilitas_lingkungan'],
-                        row['kepuasan_mentor'],
-                        created_at,
-                        updated_at
-                        ))
-    mysql.connection.commit()
-    cur.close()
-    return "sukses"
+    try:
+    
+        data = request.files['file']
+        data = pd.read_excel(data)
+        created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        updated_at = created_at
+        convertProgram = feedbackDatas.convertProgram()
+        convertBatch = feedbackDatas.convertBatch()
+        print(convertBatch)
+        cur = mysql.connection.cursor()
+        # Iterasi melalui setiap baris DataFrame dan menyimpan data ke database
+        for index, row in data.iterrows():
+            # Menjalankan kueri untuk menyimpan data
+            cur.execute("INSERT INTO feedback (name, jalur_pembelajaran, program_id, batch_id, sesi, pembelajaran_pengajaran, fasilitas_lingkungan, kepuasan_mentor, createdAt, updatedAt) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
+                        (
+                            row['Nama'], 
+                            row['Jalur Pembelajaran'], 
+                            convertProgram[row['Program']], 
+                            convertBatch[row['Batch']], 
+                            row['Sesi'],
+                            row['Pembelajaran dan Pengajaran'],
+                            row['Fasilitas dan Lingkungan'],
+                            row['Kepuasan terhadap Mentor'],
+                            created_at,
+                            updated_at
+                            ))
+        mysql.connection.commit()
+        cur.close()
+
+        flash('Feedback Berhasil Di Import', 'success')
+        return redirect(url_for('feedback_data_routes.getFeedbackData'))
+    except Exception as e:
+        flash(f'Feedback Gagal Di Import {e}', 'danger')
+        return redirect(url_for('feedback_data_routes.getFeedbackData'))
