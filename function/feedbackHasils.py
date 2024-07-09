@@ -6,7 +6,6 @@ from nltk.stem import SnowballStemmer
 from textblob import TextBlob
 from afinn import Afinn
 from flask_mysqldb import MySQL
-from googletrans import Translator
 from sklearn.cluster import DBSCAN
 from sklearn.metrics import silhouette_score
 
@@ -157,17 +156,6 @@ def get_feedback_kluster_from_database(user_id):
     cur.close()
 
     return klusters
-
-def translate_text(text):
-
-    translator = Translator()
-    try:
-        # Menerjemahkan teks ke bahasa Inggris
-        translated = translator.translate(text, src='id', dest='en').text
-        return translated
-    except Exception as e:
-        print(f"Error during translation: {e}")
-        return text
 
 
 def chekEpsMinRadius(data_scaled):

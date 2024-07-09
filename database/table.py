@@ -87,5 +87,21 @@ def create_table(app):
                     ON DELETE RESTRICT
             );
         ''')
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS translate_feedback (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                feedback_id INT NOT NULL,
+                translate_pembelajaran_pengajaran TEXT NOT NULL,
+                translate_fasilitas_lingkungan TEXT NOT NULL,
+                translate_kepuasan_mentor TEXT NOT NULL,
+                createdAt DATETIME,
+                updatedAt DATETIME,
+                CONSTRAINT ts_feedback
+                    FOREIGN KEY (feedback_id) 
+                    REFERENCES feedback(id)
+                    ON UPDATE CASCADE
+                    ON DELETE RESTRICT
+            );
+        ''')
         mysql.connection.commit()
         cur.close()

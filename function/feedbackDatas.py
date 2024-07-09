@@ -1,4 +1,5 @@
 from flask_mysqldb import MySQL
+from googletrans import Translator
 
 mysql = MySQL()
 
@@ -56,3 +57,14 @@ def convertBatch():
         mapping[nama_batch] = id_batch
 
     return mapping
+
+def translate_text(text):
+
+    translator = Translator()
+    try:
+        # Menerjemahkan teks ke bahasa Inggris
+        translated = translator.translate(text, src='id', dest='en').text
+        return translated
+    except Exception as e:
+        print(f"Error during translation: {e}")
+        return text

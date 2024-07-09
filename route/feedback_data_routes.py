@@ -121,7 +121,6 @@ def postDataFeedbackData():
         updated_at = created_at
         convertProgram = feedbackDatas.convertProgram()
         convertBatch = feedbackDatas.convertBatch()
-        print(convertBatch)
         cur = mysql.connection.cursor()
         # Iterasi melalui setiap baris DataFrame dan menyimpan data ke database
         for index, row in data.iterrows():
@@ -139,6 +138,37 @@ def postDataFeedbackData():
                             created_at,
                             updated_at
                             ))
+            # Ambil ID dari feedback yang baru saja dimasukkan
+            feedback_id = cur.lastrowid
+
+            # Terjemahkan teks untuk setiap kolom terkait
+            translated_columns = {
+                'translate_pembelajaran_pengajaran': row['Pembelajaran dan Pengajaran'],
+                'translate_fasilitas_lingkungan': row['Fasilitas dan Lingkungan'],
+                'translate_kepuasan_mentor': row['Kepuasan terhadap Mentor']
+            }
+
+            # Mengumpulkan hasil terjemahan
+            translated_texts = {}
+            for column, text in translated_columns.items():
+                translated_texts[column] = feedbackDatas.translate_text(text)
+
+            # Menjalankan kueri untuk menyimpan data ke tabel translate_feedback
+            cur.execute(
+                """
+                INSERT INTO translate_feedback (feedback_id, translate_pembelajaran_pengajaran, translate_fasilitas_lingkungan, translate_kepuasan_mentor, createdAt, updatedAt) 
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """, 
+                (
+                    feedback_id,
+                    translated_texts['translate_pembelajaran_pengajaran'],
+                    translated_texts['translate_fasilitas_lingkungan'],
+                    translated_texts['translate_kepuasan_mentor'],
+                    created_at,
+                    updated_at
+                )
+            )
+
         mysql.connection.commit()
         cur.close()
 
