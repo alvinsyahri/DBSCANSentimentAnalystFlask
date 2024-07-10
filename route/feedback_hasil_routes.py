@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, send_file, jsonify
 import pandas as pd
 from datetime import datetime
 from function import feedbackHasils
@@ -34,9 +34,9 @@ def getFeedbackHasil():
         mysql.connection.commit()
         cur.close()
         tabs = [
-            {'id': 'positif', 'label': 'Positif', 'charts': ['myChart2', 'myChart3'], 'name': ['Batch', 'Program'], 'table_id': 'myTable1', 'klusters': klustersPositif},
-            {'id': 'negatif', 'label': 'Negatif', 'charts': ['myChart4', 'myChart5'], 'name': ['Batch', 'Program'], 'table_id': 'myTable2', 'klusters': klustersNegatif},
-            {'id': 'netral', 'label': 'Netral', 'charts': ['myChart6', 'myChart7'], 'name': ['Batch', 'Program'], 'table_id': 'myTable3', 'klusters': klustersNetral}
+            {'id': 'positif', 'label': 'Positif', 'charts': ['myChart2', 'myChart3'], 'name': ['Program', 'Batch'], 'table_id': 'myTable1', 'klusters': klustersPositif},
+            {'id': 'negatif', 'label': 'Negatif', 'charts': ['myChart4', 'myChart5'], 'name': ['Program', 'Batch'], 'table_id': 'myTable2', 'klusters': klustersNegatif},
+            {'id': 'netral', 'label': 'Netral', 'charts': ['myChart6', 'myChart7'], 'name': ['Program', 'Batch'], 'table_id': 'myTable3', 'klusters': klustersNetral}
         ]
 
         labels = [item[0] for item in grafis]
@@ -82,7 +82,7 @@ def postFeedbackHasil():
 
     # hit database
     cur = mysql.connection.cursor()
-    cur.execute(f"SELECT id, {choice} FROM feedback")
+    cur.execute(f"""SELECT tf.feedback_id, tf.translate_{choice}, fb.{choice} FROM translate_feedback tf JOIN feedback fb ON tf.feedback_id = fb.id""")
     data = cur.fetchall()
     mysql.connection.commit()
     cur.close()
@@ -95,14 +95,14 @@ def postFeedbackHasil():
         # convert tuple to dictionary form access by row now access by coloumn
         dictionary = {
                 'id': [subtuple[0] for subtuple in data],
-                'text': [subtuple[1] for subtuple in data]
+                'translated': [subtuple[1] for subtuple in data],
+                'text': [subtuple[1] for subtuple in data],
             }
 
         # convert dataframe dan delete row when nan or empty string
 
 
         data = pd.DataFrame(dictionary)
-        data['translated'] = data['text'].apply(feedbackHasils.translate_text)
 
         data.replace('', pd.NA, inplace=True)
 
