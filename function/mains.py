@@ -1,6 +1,7 @@
 from flask import request
 from datetime import datetime
 from flask_mysqldb import MySQL
+from googletrans import Translator
 
 mysql = MySQL()
 
@@ -18,3 +19,14 @@ def checkTraffic():
         mysql.connection.commit()
 
     cur.close()
+
+def translate_text(text):
+
+    translator = Translator()
+    try:
+        # Menerjemahkan teks ke bahasa Inggris
+        translated = translator.translate(text, src='id', dest='en').text
+        return translated
+    except Exception as e:
+        print(f"Error during translation: {e}")
+        return text

@@ -82,11 +82,7 @@
           </div>
         </div>
         <div class="row text-center">
-          {% if silhouette_score %}
-          <p>Silhouette Score {{ silhouette_score }}</p>
-          {% else %}
-          <p>Silhouette Score not available</p>
-          {% endif %}
+          <b><p>Kategori : {{ category_choice   }}</p></b>
         </div>
       </div>
       {% for tab in tabs %}

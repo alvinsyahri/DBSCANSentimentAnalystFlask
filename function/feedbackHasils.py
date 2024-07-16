@@ -74,7 +74,6 @@ def clean_text(text):
     text = re.sub(r'\*+', '', text)
     text = re.sub(r'\.+', '', text)
     text = text.strip()
-    
     return text
 
 def tokenize_text(text):
@@ -100,30 +99,15 @@ def stem_tokens(tokens):
     return dataListWords
 
 def getPolarity(text):
-    analysis = TextBlob(text)
-    # try:
-    #     analysis = analysis.translate(to="en")
-    # except Exception as e:
-    #     print(e)
-        
+    analysis = TextBlob(text)   
     return analysis.sentiment.polarity
 
 def getSubjectivity(text):
     analysis = TextBlob(text)
-    # try:
-    #     analysis = analysis.translate(to="en")
-    # except Exception as e:
-    #     print(e)
-        
     return analysis.sentiment.subjectivity
 
 def getAfinnScore(text):
     afinn = Afinn()
-    # try:
-    #     analysis = analysis.translate(to="en")
-    # except Exception as e:
-    #     print(e)
-        
     return afinn.score(text)
 
 def get_sentiment_label(cluster):

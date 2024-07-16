@@ -42,7 +42,7 @@ def postProgram():
             flash('Program Baru Gagal Ditambahkan Data Program Sudah Ada', 'danger')
             return redirect(url_for('program_routes.getProgram'))
         except Exception as e:
-            flash(f'Program Gagal Ditambahkan {e}', 'danger')
+            flash(f'Program Gagal Ditambahkan', 'danger')
             return redirect(url_for('program_routes.getProgram'))
     else:
         return render_template('page/pages-misc-error.html')

@@ -47,6 +47,7 @@ def getFeedbackHasil():
         ]
 
         silhouette_score = session.get('silhouette_score')
+        category_choice = session.get('category_choice')
         
         return render_template('page/feedback/hasil.html', title='Hasil Klasterisasi Feedback', 
                                tabs=tabs, 
@@ -63,7 +64,8 @@ def getFeedbackHasil():
                                values_bar_negatif=values_bar_negatif, 
                                values_bar_netral=values_bar_netral, 
                                grafis=grafis,
-                               silhouette_score=silhouette_score)
+                               silhouette_score=silhouette_score,
+                               category_choice=category_choice)
     else:
         return redirect('/login')
     
@@ -82,7 +84,9 @@ def postFeedbackHasil():
 
     # hit database
     cur = mysql.connection.cursor()
-    cur.execute(f"""SELECT tf.feedback_id, tf.translate_{choice}, fb.{choice} FROM translate_feedback tf JOIN feedback fb ON tf.feedback_id = fb.id""")
+    cur.execute(f"""
+        SELECT tf.feedback_id, tf.translate_{choice}, fb.{choice} 
+        FROM translate_feedback tf JOIN feedback fb ON tf.feedback_id = fb.id""")
     data = cur.fetchall()
     mysql.connection.commit()
     cur.close()
@@ -96,16 +100,12 @@ def postFeedbackHasil():
         dictionary = {
                 'id': [subtuple[0] for subtuple in data],
                 'translated': [subtuple[1] for subtuple in data],
-                'text': [subtuple[1] for subtuple in data],
-            }
+                'text': [subtuple[2] for subtuple in data],
+        }
 
         # convert dataframe dan delete row when nan or empty string
-
-
         data = pd.DataFrame(dictionary)
-
         data.replace('', pd.NA, inplace=True)
-
         data = data.dropna(how='any')
 
         # prepossesing
@@ -127,16 +127,17 @@ def postFeedbackHasil():
 
         best_eps, best_min_samples, best_score = feedbackHasils.chekEpsMinRadius(data_scaled)
 
+        session['category_choice'] = request.form['choice']
+        print(best_score)
+        
         # Menentukan parameter DBSCAN
-        eps = best_eps  
+        eps = best_eps
         min_samples = best_min_samples
-
-        session['silhouette_score'] = best_score
 
         # Membuat model DBSCAN
         dbscan = DBSCAN(eps=eps, min_samples=min_samples, metric='euclidean')
 
-        # Melakukan clustering
+        # Melakukan clusteringc
         clusters = dbscan.fit_predict(data_scaled)
 
         # Menambahkan kolom cluster ke DataFrame
@@ -176,7 +177,7 @@ def export_excel():
         ordered_columns = ['no_urut', 'feedback_name', 'jalur_pembelajaran', 'program_name', 'batch_name', 'sesi', 'feedback', 'kluster']
         df = df[ordered_columns]
 
-        df.columns = ['No Urut', 'Name', 'Jalur Pembelajaran', 'Progra Name', 'Batch', 'Sesi', 'Feedback', 'Sentiment']
+        df.columns = ['No Urut', 'Name', 'Jalur Pembelajaran', 'Program Name', 'Batch', 'Sesi', 'Feedback', 'Sentiment']
         
         wb = Workbook()
         ws = wb.active

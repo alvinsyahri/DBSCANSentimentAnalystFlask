@@ -114,7 +114,6 @@ def putAndDeleteBatch(feedback_id):
 @feedback_data_routes.route('/dashboard/feedback/data', methods=['POST'])
 def postDataFeedbackData():
     try:
-    
         data = request.files['file']
         data = pd.read_excel(data)
         created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -138,6 +137,7 @@ def postDataFeedbackData():
                             created_at,
                             updated_at
                             ))
+
             # Ambil ID dari feedback yang baru saja dimasukkan
             feedback_id = cur.lastrowid
 
@@ -175,5 +175,5 @@ def postDataFeedbackData():
         flash('Feedback Berhasil Di Import', 'success')
         return redirect(url_for('feedback_data_routes.getFeedbackData'))
     except Exception as e:
-        flash(f'Feedback Gagal Di Import {e}', 'danger')
+        flash(f'Feedback Gagal Di Import', 'danger')
         return redirect(url_for('feedback_data_routes.getFeedbackData'))
