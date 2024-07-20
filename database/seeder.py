@@ -9,9 +9,9 @@ def connect_to_mysql():
     try:
         # Ubah parameter sesuai dengan detail koneksi MySQL Anda
         connection = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="",
+            host="rm-gs5ug9n7utv3is0lxmo.mysql.singapore.rds.aliyuncs.com",
+            user="alvin21",
+            password="Putri12adiba",
             database="tugas_akhir"
         )
         return connection
@@ -60,7 +60,7 @@ def seed_data():
 
             users = [
                 ('Alvin Syahri', 'alvin21', 'alvin21', 0),
-                ('Admin Ganteng', 'admin', 'admin', 1),
+                ('Pimpinan', 'admin', 'admin', 1),
             ]
 
             for program in programs:

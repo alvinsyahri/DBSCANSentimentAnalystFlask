@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, redirect, session, make_r
 from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
 
-
 # COOKIE_TIME_OUT = 60*60*24*7 #7 days
 COOKIE_TIME_OUT = 60*5 #5 minutes
 

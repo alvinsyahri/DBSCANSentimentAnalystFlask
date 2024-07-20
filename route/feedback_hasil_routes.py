@@ -5,7 +5,9 @@ from function import feedbackHasils
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 from io import BytesIO
+import matplotlib.pyplot as plt
 from openpyxl import Workbook
+from openpyxl.drawing.image import Image as ExcelImage
 from openpyxl.styles import Alignment, Font, PatternFill
 from flask_mysqldb import MySQL
 
@@ -168,20 +170,19 @@ def postFeedbackHasil():
 @feedback_hasil_routes.route('/dashboard/feedback/hasil/export_excel')
 def export_excel():
     try:
+        # Ambil data feedback
         feedback_data = feedbackHasils.get_feedback_kluster_from_database(session['user_id'])
-        
-        df = pd.DataFrame(feedback_data, columns=['kluster', 'feedback', 'feedback_name', 'jalur_pembelajaran', 'sesi', 'program_name', 'batch_name'])
-
+        df = pd.DataFrame(feedback_data, columns=['kluster', 'feedback', 'feedback_name', 'jalur_pembelajaran', 'sesi', 'program', 'batch_name'])
         df.insert(0, 'no_urut', range(1, len(df) + 1))
-
-        ordered_columns = ['no_urut', 'feedback_name', 'jalur_pembelajaran', 'program_name', 'batch_name', 'sesi', 'feedback', 'kluster']
+        ordered_columns = ['no_urut', 'feedback_name', 'jalur_pembelajaran', 'program', 'batch_name', 'sesi', 'feedback', 'kluster']
         df = df[ordered_columns]
-
         df.columns = ['No Urut', 'Name', 'Jalur Pembelajaran', 'Program Name', 'Batch', 'Sesi', 'Feedback', 'Sentiment']
-        
+
+        # Buat workbook dan worksheet
         wb = Workbook()
         ws = wb.active
 
+        # Set header style
         header_font = Font(name='Times New Roman', size=12, bold=True)
         header_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
         for col_num, column_title in enumerate(df.columns, 1):
@@ -190,6 +191,7 @@ def export_excel():
             cell.alignment = Alignment(horizontal='center', vertical='center')
             cell.fill = header_fill
 
+        # Isi data
         data_font = Font(name='Times New Roman', size=12)
         for row_num, row_data in enumerate(df.values, 2):
             for col_num, cell_value in enumerate(row_data, 1):
@@ -197,29 +199,87 @@ def export_excel():
                 cell.font = data_font
                 cell.alignment = Alignment(horizontal='center', vertical='center')
 
-        ws.column_dimensions['A'].width = 10  
-        ws.column_dimensions['B'].width = 50
-        ws.column_dimensions['C'].width = 25
-        ws.column_dimensions['D'].width = 50
-        ws.column_dimensions['E'].width = 15
-        ws.column_dimensions['F'].width = 15
-        ws.column_dimensions['G'].width = 50
-        ws.column_dimensions['H'].width = 50
+        # Set column width
+        column_widths = {'A': 10, 'B': 50, 'C': 25, 'D': 50, 'E': 15, 'F': 15, 'G': 50, 'H': 50}
+        for col, width in column_widths.items():
+            ws.column_dimensions[col].width = width
 
+        # Set row height
         for row in ws.iter_rows(min_row=1, max_row=ws.max_row):
             ws.row_dimensions[row[0].row].height = 70
 
+        # Wrap text untuk kolom tertentu
         wrap_columns = ['G']
         for col in wrap_columns:
             for cell in ws[col]:
                 cell.alignment = Alignment(wrap_text=True, horizontal='center', vertical='center')
 
+        # Fungsi untuk membuat grafik
+        def create_graph(labels, values, title, graph_type='pie'):
+            fig, ax = plt.subplots()
+            if graph_type == 'pie' or graph_type == 'donut':
+                wedges, texts, autotexts = ax.pie(
+                    values, 
+                    labels=labels, 
+                    autopct='%1.1f%%', 
+                    startangle=140,
+                    wedgeprops=dict(width=0.55) if graph_type == 'donut' else None
+                )
+                # Mengatur warna teks
+                for autotext in autotexts:
+                    autotext.set_color('white')
+                ax.set_title(title)
+            elif graph_type == 'bar':
+                ax.bar(labels, values)
+                ax.set_title(title)
+            plt.tight_layout()
+            image = BytesIO()
+            plt.savefig(image, format='png', bbox_inches='tight')
+            image.seek(0)
+            return ExcelImage(image)
+
+        # Dapatkan data untuk grafik
+        klustersPositif = feedbackHasils.fetch_klusters('Positif', session['user_id'])
+        klustersNegatif = feedbackHasils.fetch_klusters('Negatif', session['user_id'])
+        klustersNetral = feedbackHasils.fetch_klusters('Netral', session['user_id'])
+
+        labels_doughnut_positif, values_doughnut_positif = feedbackHasils.get_top_programs(klustersPositif)
+        labels_doughnut_negatif, values_doughnut_negatif = feedbackHasils.get_top_programs(klustersNegatif)
+        labels_doughnut_netral, values_doughnut_netral = feedbackHasils.get_top_programs(klustersNetral)
+
+        labels_bar_positif, values_bar_positif = feedbackHasils.get_top_batch(klustersPositif)
+        labels_bar_negatif, values_bar_negatif = feedbackHasils.get_top_batch(klustersNegatif)
+        labels_bar_netral, values_bar_netral = feedbackHasils.get_top_batch(klustersNetral)
+
+        # Grafik pie untuk seluruh data
+        cur = mysql.connection.cursor()
+        cur.execute(f"SELECT kluster, COUNT(*) AS jumlah_record FROM kluster WHERE kluster IN ('Positif', 'Negatif', 'Netral') AND user_id = { session['user_id']} GROUP BY kluster")
+        grafis = cur.fetchall()
+        labels = [item[0] for item in grafis]
+        values = [item[1] for item in grafis]
+        grafis_pie_all = [labels, values]
+
+        # Buat grafik dan tambahkan ke worksheet dengan jarak yang diatur
+        def add_graph(ws, img, start_cell):
+            ws.add_image(img, start_cell)
+
+        # Tambahkan grafik ke worksheet
+        add_graph(ws, create_graph(labels_doughnut_positif, values_doughnut_positif, 'Top Programs (Positif)', 'donut'), 'J2')
+        add_graph(ws, create_graph(labels_doughnut_negatif, values_doughnut_negatif, 'Top Programs (Negatif)', 'donut'), 'J8')
+        add_graph(ws, create_graph(labels_doughnut_netral, values_doughnut_netral, 'Top Programs (Netral)', 'donut'), 'J14')
+
+        add_graph(ws, create_graph(labels_bar_positif, values_bar_positif, 'Top Batch (Positif)', 'bar'), 'X2')
+        add_graph(ws, create_graph(labels_bar_negatif, values_bar_negatif, 'Top Batch (Negatif)', 'bar'), 'X8')
+        add_graph(ws, create_graph(labels_bar_netral, values_bar_netral, 'Top Batch (Netral)', 'bar'), 'X14')
+
+        add_graph(ws, create_graph(grafis_pie_all[0], grafis_pie_all[1], 'Overall Sentiment Distribution', 'pie'), 'J20')
+
+        # Simpan file Excel
         excel_file = BytesIO()
         wb.save(excel_file)
         excel_file.seek(0)
-        
+
         return send_file(excel_file, download_name='feedback_kluster.xlsx', as_attachment=True)
-    except:
-        flash('Excel Gagal Dicetak', 'danger')
+    except Exception as e:
+        flash(f'Excel Gagal Dicetak: {e}', 'danger')
         return redirect(url_for('feedback_hasil_routes.postFeedbackHasil'))
-    
