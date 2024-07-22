@@ -74,6 +74,8 @@ def logout():
         session.pop('name', None)
         session.pop('username', None)
         session.pop('role', None)
+        session.pop('category_choice', None)
+        session.pop('plot', None)
     return redirect('/login')
 
 @auth_routes.route('/cookie')

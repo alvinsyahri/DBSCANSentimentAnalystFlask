@@ -10,3 +10,4 @@ textblob
 afinn
 googletrans==4.0.0-rc1
 matplotlib
+Flask-Session

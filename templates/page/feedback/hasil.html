@@ -76,13 +76,24 @@
             </button>
           </div>
         </div>
-        <div class="row my-5">
-          <div class="col-lg-12 chart-container">
+        <div class="row my-6">
+          <div class="col-lg-6">
             <canvas id="myChart1"></canvas>
           </div>
+          <div class="col-lg-6 ">
+            <img width="500" height="400" src="/dashboard/feedback/hasil/plot1_png" alt="Scatter Plot">
+          </div>
+          <div class="col-lg-6 mt-5">
+            <img width="500" height="400" src="/dashboard/feedback/hasil/plot2_png" alt="Scatter Plot">
+          </div>
+          <div class="col-lg-6 mt-5">
+            <img width="500" height="400" src="/dashboard/feedback/hasil/plot3_png" alt="Scatter Plot">
+          </div>
         </div>
-        <div class="row text-center">
-          <b><p>Kategori : {{ category_choice   }}</p></b>
+        <div class="row text-center mt-5">
+          <b>
+            <p>Kategori : {{ category_choice }}</p>
+          </b>
         </div>
       </div>
       {% for tab in tabs %}

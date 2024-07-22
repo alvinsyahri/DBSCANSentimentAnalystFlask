@@ -1,12 +1,24 @@
 from flask import Flask
 from route import auth_routes, batch_routes, dashboard_routes, feedback_hasil_routes, feedback_data_routes, main_routes, program_routes, user_routes
 from database import table
+from flask_session import Session
+import os
 from datetime import timedelta
 from flask_mysqldb import MySQL
  
 app = Flask(__name__)
 app.secret_key = 'skripsi-klastering-IL'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60*24)
+
+# Konfigurasi File-Based Session
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = os.path.join(app.instance_path, 'sessions')
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_USE_SIGNER'] = True
+app.config['SESSION_FILE_THRESHOLD'] = 1000  # Batas maksimum file sesi
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
+
+# Inisialisasi Session
+server_session = Session(app)
 
 # Cookie Configuration
 global COOKIE_TIME_OUT

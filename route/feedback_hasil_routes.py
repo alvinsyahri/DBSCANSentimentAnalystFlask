@@ -146,6 +146,9 @@ def postFeedbackHasil():
         data['cluster'] = clusters
         
         data['sentiment'] = data['cluster'].apply(feedbackHasils.get_sentiment_label)
+        grafis = pd.DataFrame()   
+        grafis = data[['polarity','subjectivity','afinn','sentiment']]
+        session['plot'] = grafis.to_dict(orient='records')
 
         created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         updated_at = created_at
@@ -166,6 +169,95 @@ def postFeedbackHasil():
 
         flash('Data Berhasil Di Kluster', 'success')
         return redirect(url_for('feedback_hasil_routes.postFeedbackHasil'))
+
+@feedback_hasil_routes.route('/dashboard/feedback/hasil/plot1_png')
+def plot1_png():
+    plot = session.get('plot')
+    data = pd.DataFrame(plot)
+
+    fig, ax = plt.subplots()
+
+    for index, row in data.iterrows():
+        if row['sentiment'] == 'Positif':
+            ax.scatter(row['polarity'], row['subjectivity'], color="black", label='Positif')
+        elif row['sentiment'] == 'Netral':
+            ax.scatter(row['polarity'], row['subjectivity'], color="yellow", label='Netral')
+        elif row['sentiment'] == 'Negatif':
+            ax.scatter(row['polarity'], row['subjectivity'], color="red", label='Negatif')
+
+    ax.set_title('DBSCAN Polarity and Subjectivity')
+    ax.set_xlabel('polarity')
+    ax.set_ylabel('subjectivity')
+
+    # Tambahkan legenda
+    handles, labels = ax.get_legend_handles_labels()
+    by_label = dict(zip(labels, handles))
+    ax.legend(by_label.values(), by_label.keys())
+
+    output = BytesIO()
+    fig.savefig(output, format='png')
+    output.seek(0)
+
+    return send_file(output, mimetype='image/png')
+@feedback_hasil_routes.route('/dashboard/feedback/hasil/plot2_png')
+def plot2_png():
+    plot = session.get('plot')
+    data = pd.DataFrame(plot)
+
+    fig, ax = plt.subplots()
+
+    for index, row in data.iterrows():
+        if row['sentiment'] == 'Positif':
+            ax.scatter(row['polarity'], row['afinn'], color="black", label='Positif')
+        elif row['sentiment'] == 'Netral':
+            ax.scatter(row['polarity'], row['afinn'], color="yellow", label='Netral')
+        elif row['sentiment'] == 'Negatif':
+            ax.scatter(row['polarity'], row['afinn'], color="red", label='Negatif')
+
+    ax.set_title('DBSCAN Polarity and Afinn Score')
+    ax.set_xlabel('polarity')
+    ax.set_ylabel('afinn')
+
+    # Tambahkan legenda
+    handles, labels = ax.get_legend_handles_labels()
+    by_label = dict(zip(labels, handles))
+    ax.legend(by_label.values(), by_label.keys())
+
+    output = BytesIO()
+    fig.savefig(output, format='png')
+    output.seek(0)
+
+    return send_file(output, mimetype='image/png')
+
+@feedback_hasil_routes.route('/dashboard/feedback/hasil/plot3_png')
+def plot3_png():
+    plot = session.get('plot')
+    data = pd.DataFrame(plot)
+
+    fig, ax = plt.subplots()
+
+    for index, row in data.iterrows():
+        if row['sentiment'] == 'Positif':
+            ax.scatter(row['subjectivity'], row['afinn'], color="black", label='Positif')
+        elif row['sentiment'] == 'Netral':
+            ax.scatter(row['subjectivity'], row['afinn'], color="yellow", label='Netral')
+        elif row['sentiment'] == 'Negatif':
+            ax.scatter(row['subjectivity'], row['afinn'], color="red", label='Negatif')
+
+    ax.set_title('DBSCAN Subjectivity and Afinn Score')
+    ax.set_xlabel('subjectivity')
+    ax.set_ylabel('afinn')
+
+    # Tambahkan legenda
+    handles, labels = ax.get_legend_handles_labels()
+    by_label = dict(zip(labels, handles))
+    ax.legend(by_label.values(), by_label.keys())
+
+    output = BytesIO()
+    fig.savefig(output, format='png')
+    output.seek(0)
+
+    return send_file(output, mimetype='image/png')
 
 @feedback_hasil_routes.route('/dashboard/feedback/hasil/export_excel')
 def export_excel():
@@ -273,6 +365,34 @@ def export_excel():
         add_graph(ws, create_graph(labels_bar_netral, values_bar_netral, 'Top Batch (Netral)', 'bar'), 'X14')
 
         add_graph(ws, create_graph(grafis_pie_all[0], grafis_pie_all[1], 'Overall Sentiment Distribution', 'pie'), 'J20')
+
+        # Proses data dan buat grafik tambahan
+        plot = session.get('plot')
+        data = pd.DataFrame(plot)
+
+        def create_scatter_plot(x_col, y_col, x_label, y_label, title):
+            fig, ax = plt.subplots()
+            for index, row in data.iterrows():
+                if row['sentiment'] == 'Positif':
+                    ax.scatter(row[x_col], row[y_col], color="black", label='Positif')
+                elif row['sentiment'] == 'Netral':
+                    ax.scatter(row[x_col], row[y_col], color="yellow", label='Netral')
+                elif row['sentiment'] == 'Negatif':
+                    ax.scatter(row[x_col], row[y_col], color="red", label='Negatif')
+            ax.set_title(title)
+            ax.set_xlabel(x_label)
+            ax.set_ylabel(y_label)
+            handles, labels = ax.get_legend_handles_labels()
+            by_label = dict(zip(labels, handles))
+            ax.legend(by_label.values(), by_label.keys())
+            image = BytesIO()
+            fig.savefig(image, format='png')
+            image.seek(0)
+            return ExcelImage(image)
+
+        add_graph(ws, create_scatter_plot('polarity', 'subjectivity', 'Polarity', 'Subjectivity', 'DBSCAN Polarity and Subjectivity'), 'X20')
+        add_graph(ws, create_scatter_plot('polarity', 'afinn', 'Polarity', 'Afinn', 'DBSCAN Polarity and Afinn Score'), 'J26')
+        add_graph(ws, create_scatter_plot('subjectivity', 'afinn', 'Subjectivity', 'Afinn', 'DBSCAN Subjectivity and Afinn Score'), 'X26')
 
         # Simpan file Excel
         excel_file = BytesIO()
